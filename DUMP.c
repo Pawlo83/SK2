@@ -1,116 +1,88 @@
-#include <OneWire.h>
-#include <DS18B20.h>
+#include <Wire.h>
+#include <LiquidCrystal_I2C.h>
+#include <Servo.h>
 
-#define ONEWIRE_PIN 2      // Pin do czujnika temperatury DS18B20
-#define BUTTON1_PIN 4      // Pin pierwszego przycisku
-#define BUTTON2_PIN 5      // Pin drugiego przycisku
-#define BUTTON3_PIN 6      // Pin trzeciego przycisku
-#define LED_PIN 13         // Pin do diody LED
+LiquidCrystal_I2C lcd(0x27, 16, 2); // Ustawienie adresu wyświetlacza (0x27) i rozmiaru (16x2)
+Servo serwomechanizm;
 
-byte address[8] = {0x28, 0xB1, 0x6D, 0xA1, 0x3, 0x0, 0x0, 0x11}; // Adres czujnika
-OneWire onewire(ONEWIRE_PIN);
-DS18B20 sensors(&onewire);
-
-// Funkcja do pobrania temperatury
-float getTemperature() {
-  sensors.request(address);
-  delay(1000); // Czas na odczyt z czujnika
-  return sensors.readTemperature(address);
-}
+const int buttonPin = 2; // Pin dla przycisku
+volatile bool blocked = true; // Zmienna blokady, początkowo blokada aktywna
+int drzwiStan = 0; // 0 = zamknięte, 1 = otwarte
 
 void setup() {
-  Serial.begin(9600);
-  pinMode(BUTTON1_PIN, INPUT_PULLUP);
-  pinMode(BUTTON2_PIN, INPUT_PULLUP);
-  pinMode(BUTTON3_PIN, INPUT_PULLUP);
-  pinMode(LED_PIN, OUTPUT);
-  sensors.begin();
-  sensors.request(address);
+    // Inicjalizacja wyświetlacza
+    lcd.init();
+    lcd.backlight();
+    lcd.setCursor(0, 0);
+    lcd.print("Closed");
+    lcd.setCursor(0, 1);
+    lcd.print("Blocked");
+
+    // Inicjalizacja serwomechanizmu
+    serwomechanizm.attach(3); // Serwomechanizm podłączony do pinu 3
+    serwomechanizm.write(0); // Ustawienie pozycji początkowej na 0° (drzwi zamknięte)
+
+    // Inicjalizacja przycisku z przerwaniem
+    pinMode(buttonPin, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(buttonPin), toggleBlockedState, FALLING);
+
+    // Inicjalizacja komunikacji szeregowej
+    Serial.begin(9600);
 }
 
 void loop() {
-  if (digitalRead(BUTTON1_PIN) == LOW) { // Naciśnięcie pierwszego przycisku
-    float temperature = getTemperature();
-    Serial.print("Jednorazowy pomiar temperatury: ");
-    Serial.print(temperature);
-    Serial.println(" 'C");
-    delay(500); // Debouncing przycisku
-  }
-
-  if (digitalRead(BUTTON2_PIN) == LOW) { // Naciśnięcie drugiego przycisku
-    float temperatures[18];
-    unsigned long startTime = millis(); // Zapisanie czasu rozpoczęcia
-    for (int i = 0; i < 18; i++) {
-      temperatures[i] = getTemperature();
-      digitalWrite(LED_PIN, HIGH); // Zapalenie diody na 2ms
-      delay(2);
-      digitalWrite(LED_PIN, LOW);
-      delay(100); // Krótkie opóźnienie przed kolejnym pomiarem
+    if (Serial.available()) {
+        char cmd = Serial.read();
+        if (blocked) {
+            lcd.setCursor(0, 1);
+            lcd.print("Blocked      ");
+        } else {
+            lcd.setCursor(0, 1);
+            lcd.print("Unblocked    ");
+            if (cmd == 'o' && drzwiStan == 0) {
+                openDoor();
+            } else if (cmd == 'c' && drzwiStan == 1) {
+                closeDoor();
+            } else if (cmd == 'o' && drzwiStan == 1) {
+                displayTemporaryMessage("Already open");
+            } else if (cmd == 'c' && drzwiStan == 0) {
+                displayTemporaryMessage("Already closed");
+            } else {
+                displayTemporaryMessage("Wrong cmd");
+            }
+        }
     }
+}
 
-    // Usunięcie wartości skrajnych
-    float minVal = temperatures[0];
-    float maxVal = temperatures[0];
-    for (int i = 1; i < 18; i++) {
-      if (temperatures[i] < minVal) minVal = temperatures[i];
-      if (temperatures[i] > maxVal) maxVal = temperatures[i];
+void openDoor() {
+    serwomechanizm.write(90); // Ruch serwa do pozycji 90° (otwarte drzwi)
+    lcd.setCursor(0, 0);
+    lcd.print("Open         ");
+    drzwiStan = 1; // Aktualizacja stanu drzwi na otwarte
+}
+
+void closeDoor() {
+    serwomechanizm.write(0); // Ruch serwa do pozycji 0° (zamknięte drzwi)
+    lcd.setCursor(0, 0);
+    lcd.print("Closed       ");
+    drzwiStan = 0; // Aktualizacja stanu drzwi na zamknięte
+}
+
+void displayTemporaryMessage(const char* message) {
+    lcd.clear();
+    lcd.setCursor(0, 0);
+    lcd.print(message);
+    delay(3000); // Wyświetlenie wiadomości przez 3 sekundy
+    lcd.clear();
+    if (drzwiStan == 0) {
+        lcd.setCursor(0, 0);
+        lcd.print("Closed");
+    } else {
+        lcd.setCursor(0, 0);
+        lcd.print("Open");
     }
+}
 
-    // Uśrednianie po usunięciu skrajnych
-    float sum = 0;
-    for (int i = 0; i < 18; i++) {
-      if (temperatures[i] != minVal && temperatures[i] != maxVal) {
-        sum += temperatures[i];
-      }
-    }
-    float average = sum / 16; // Usunięto 2 wartości (min i max)
-    unsigned long elapsedTime = millis() - startTime; // Czas oczekiwania
-
-    Serial.print("Uśredniona temperatura: ");
-    Serial.print(average);
-    Serial.println(" 'C");
-    Serial.print("Czas oczekiwania: ");
-    Serial.print(elapsedTime);
-    Serial.println(" ms");
-    delay(500); // Debouncing przycisku
-  }
-
-  if (digitalRead(BUTTON3_PIN) == LOW) { // Naciśnięcie trzeciego przycisku
-    float temperatures[18];
-    unsigned long startTime = millis(); // Zapisanie czasu rozpoczęcia
-    for (int i = 0; i < 18; i++) {
-      temperatures[i] = getTemperature();
-      digitalWrite(LED_PIN, HIGH); // Zapalenie diody na 2ms
-      delay(2);
-      digitalWrite(LED_PIN, LOW);
-      delay(100); // Krótkie opóźnienie przed kolejnym pomiarem
-    }
-
-    // Usunięcie wartości skrajnych
-    float minVal = temperatures[0];
-    float maxVal = temperatures[0];
-    for (int i = 1; i < 18; i++) {
-      if (temperatures[i] < minVal) minVal = temperatures[i];
-      if (temperatures[i] > maxVal) maxVal = temperatures[i];
-    }
-
-    // Uśrednianie z przesunięciem bitowym po usunięciu skrajnych
-    long sum = 0;
-    for (int i = 0; i < 18; i++) {
-      if (temperatures[i] != minVal && temperatures[i] != maxVal) {
-        sum += (long)(temperatures[i] * 100); // Mnożenie dla zachowania precyzji
-      }
-    }
-    long average = sum >> 4; // Przesunięcie bitowe o 4 miejsca (dzielenie przez 16)
-    float averageTemp = (float)average / 100.0; // Zamiana na wartość float
-    unsigned long elapsedTime = millis() - startTime; // Czas oczekiwania
-
-    Serial.print("Uśredniona temperatura (bitowo): ");
-    Serial.print(averageTemp);
-    Serial.println(" 'C");
-    Serial.print("Czas oczekiwania: ");
-    Serial.print(elapsedTime);
-    Serial.println(" ms");
-    delay(500); // Debouncing przycisku
-  }
+void toggleBlockedState() {
+    blocked = !blocked; // Przełączanie stanu blokady
 }
