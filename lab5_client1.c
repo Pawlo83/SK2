@@ -40,9 +40,17 @@ void main(int argc, char* argv[]){
   connect(sfd, (struct sockaddr*) &saddr, sizeof(saddr));
   
   write(sfd, argv[3], (strlen(argv[3])));
+  /*
+  write(sfd,"6" ,1);
+  write(sfd,"5" ,1);
+  write(sfd,"4" ,1);
+  write(sfd,"3" ,1);
+  write(sfd,"2" ,1);
+  write(sfd,"1" ,1);
+  */
   write(sfd, "\n", 1);
   bufsize = sizeof(buf);
-  _read(sfd,&buf,bufsize);
+  rc=_read(sfd,&buf,bufsize);
   write(1, buf, rc);
   
   close(sfd);
