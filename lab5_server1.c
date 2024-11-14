@@ -19,12 +19,9 @@ int _read(int sfd, char *buf, int bufsize) {
 	bufsize -= i;
 	buf += i;
 	rc += i;
-	//printf("%d\n",buf-1);
-	//printf("%d\n",buf);
 	} while (*(buf-1)!='\n');
 	return rc;
 }
-  
   socklen_t sl;
   struct sockaddr_in saddr, caddr;
   memset(&saddr, 0, sizeof(saddr));
@@ -43,29 +40,23 @@ int _read(int sfd, char *buf, int bufsize) {
     printf("new connection from %s:%d\n", inet_ntoa((struct in_addr)caddr.sin_addr), ntohs(caddr.sin_port));
     
     i=0;
-    /*while(rc[i]=='\n'){
-  	rc[i] = read(sfd, buf, sizeof(buf));
-  	printf("%c\n",rc[i]);
-  	i++;
-    }*/
     bufsize = sizeof(buf);
-    _read(cfd,&buf,bufsize);
+    rc=_read(cfd,&buf,bufsize);
     write(1, buf, rc);
     printf("\n");
     
-    if((strncmp(buf, "123456", 10))==0){
-      write(cfd, "Y X\n", 5);
+    if((strncmp(buf, "123456\n", 10))==0){
+      write(cfd, "Y X", 3);
     }
     else{
-      if((strncmp(buf, "654321", 10))==0){
-        write(cfd, "X Y\n", 5);
+      if((strncmp(buf, "654321\n", 10))==0){
+        write(cfd, "X Y", 3);
       }
       else{
-        write(cfd, "ERROR\n", 7);
+        write(cfd, "ERROR", 5);
       }
     }
-    write(sfd, "\n", 1);
-    //write(cfd, "Hello World!\n", 13);
+    write(cfd, "\n", 1);
     close(cfd);
   }
 }
