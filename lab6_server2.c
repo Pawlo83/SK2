@@ -38,6 +38,7 @@ void main(int argc, char* argv[]){
 		printf("new connection\n");
 		rc = SSL_read(ssl, buf, sizeof(buf));
 		write(1, buf, rc);
+		printf("\n");
 		    if((strncmp(buf, "123456", 10))==0){
 		      SSL_write(ssl, "Y X\n", 5);
 		    }
@@ -54,4 +55,5 @@ void main(int argc, char* argv[]){
 		SSL_shutdown(ssl); SSL_free(ssl); close(cfd);
 	}
 	SSL_CTX_free(ctx); close(sfd); return EXIT_SUCCESS;
+
 }
