@@ -1,88 +1,75 @@
-#include <Wire.h>
-#include <LiquidCrystal_I2C.h>
-#include <Servo.h>
+import Adafruit_DHT
+import sqlite3
+import time
+from datetime import datetime
 
-LiquidCrystal_I2C lcd(0x27, 16, 2); // Ustawienie adresu wyświetlacza (0x27) i rozmiaru (16x2)
-Servo serwomechanizm;
+# Ustawienia czujnika
+SENSOR = Adafruit_DHT.DHT11
+GPIO_PIN = 'P9_11'  # Pin GPIO, do którego podłączony jest DHT11
 
-const int buttonPin = 2; // Pin dla przycisku
-volatile bool blocked = true; // Zmienna blokady, początkowo blokada aktywna
-int drzwiStan = 0; // 0 = zamknięte, 1 = otwarte
+# Funkcja do wykonania pomiarów i uśredniania wyników
+def get_average_reading():
+    measurements = []
+    for _ in range(18):
+        humidity, temperature = Adafruit_DHT.read_retry(SENSOR, GPIO_PIN)
+        if temperature is not None:
+            measurements.append(temperature)
+        time.sleep(1)  # Odstęp między pomiarami
 
-void setup() {
-    // Inicjalizacja wyświetlacza
-    lcd.init();
-    lcd.backlight();
-    lcd.setCursor(0, 0);
-    lcd.print("Closed");
-    lcd.setCursor(0, 1);
-    lcd.print("Blocked");
+    if len(measurements) >= 3:
+        measurements.remove(max(measurements))
+        measurements.remove(min(measurements))
+        average_temp = sum(measurements) / len(measurements)
+        return round(average_temp, 2)
+    else:
+        return None
 
-    // Inicjalizacja serwomechanizmu
-    serwomechanizm.attach(3); // Serwomechanizm podłączony do pinu 3
-    serwomechanizm.write(0); // Ustawienie pozycji początkowej na 0° (drzwi zamknięte)
+# Inicjalizacja bazy danych
+def initialize_database():
+    conn = sqlite3.connect("sensor_data.db")
+    cursor = conn.cursor()
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS measurements (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        timestamp TEXT NOT NULL,
+        temperature REAL NOT NULL
+    )
+    """)
+    conn.commit()
+    conn.close()
 
-    // Inicjalizacja przycisku z przerwaniem
-    pinMode(buttonPin, INPUT_PULLUP);
-    attachInterrupt(digitalPinToInterrupt(buttonPin), toggleBlockedState, FALLING);
+# Zapis pomiaru do bazy danych
+def save_to_database(temperature):
+    conn = sqlite3.connect("sensor_data.db")
+    cursor = conn.cursor()
+    timestamp = datetime.now().strftime("%H:%M:%S, %d-%m-%Y")
+    cursor.execute("INSERT INTO measurements (timestamp, temperature) VALUES (?, ?)", (timestamp, temperature))
+    conn.commit()
+    conn.close()
 
-    // Inicjalizacja komunikacji szeregowej
-    Serial.begin(9600);
-}
+# Wyświetlenie danych z bazy
+def display_data():
+    conn = sqlite3.connect("sensor_data.db")
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM measurements")
+    rows = cursor.fetchall()
+    for row in rows:
+        print(f"ID: {row[0]}, Timestamp: {row[1]}, Temperature: {row[2]}°C")
+    conn.close()
 
-void loop() {
-    if (Serial.available()) {
-        char cmd = Serial.read();
-        if (blocked) {
-            lcd.setCursor(0, 1);
-            lcd.print("Blocked      ");
-        } else {
-            lcd.setCursor(0, 1);
-            lcd.print("Unblocked    ");
-            if (cmd == 'o' && drzwiStan == 0) {
-                openDoor();
-            } else if (cmd == 'c' && drzwiStan == 1) {
-                closeDoor();
-            } else if (cmd == 'o' && drzwiStan == 1) {
-                displayTemporaryMessage("Already open");
-            } else if (cmd == 'c' && drzwiStan == 0) {
-                displayTemporaryMessage("Already closed");
-            } else {
-                displayTemporaryMessage("Wrong cmd");
-            }
-        }
-    }
-}
+# Główna część programu
+if __name__ == "__main__":
+    initialize_database()
 
-void openDoor() {
-    serwomechanizm.write(90); // Ruch serwa do pozycji 90° (otwarte drzwi)
-    lcd.setCursor(0, 0);
-    lcd.print("Open         ");
-    drzwiStan = 1; // Aktualizacja stanu drzwi na otwarte
-}
+    for _ in range(5):  # Powtarzamy algorytm 5 razy
+        avg_temp = get_average_reading()
+        if avg_temp is not None:
+            print(f"Average Temperature: {avg_temp}°C")
+            save_to_database(avg_temp)
+        else:
+            print("Failed to get valid reading.")
+        time.sleep(2)  # Odstęp między cyklami
 
-void closeDoor() {
-    serwomechanizm.write(0); // Ruch serwa do pozycji 0° (zamknięte drzwi)
-    lcd.setCursor(0, 0);
-    lcd.print("Closed       ");
-    drzwiStan = 0; // Aktualizacja stanu drzwi na zamknięte
-}
-
-void displayTemporaryMessage(const char* message) {
-    lcd.clear();
-    lcd.setCursor(0, 0);
-    lcd.print(message);
-    delay(3000); // Wyświetlenie wiadomości przez 3 sekundy
-    lcd.clear();
-    if (drzwiStan == 0) {
-        lcd.setCursor(0, 0);
-        lcd.print("Closed");
-    } else {
-        lcd.setCursor(0, 0);
-        lcd.print("Open");
-    }
-}
-
-void toggleBlockedState() {
-    blocked = !blocked; // Przełączanie stanu blokady
-}
+    print("\n")
+    print("Data in Database:")
+    display_data()
