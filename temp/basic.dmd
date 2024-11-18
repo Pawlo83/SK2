@@ -5,4 +5,18 @@
 <ownerDesignName>basic</ownerDesignName>
 <capitalNames>false</capitalNames>
 <designId>7D19E923-8DDC-A84C-A152-46E3D4F869E3</designId>
+<usedDesignStorageDescriptors>
+<designDescr class="oracle.dbtools.crest.model.design.Design$DesignStorageDesc" id="0F42E044-B21F-7FC0-A985-57758427D075">
+<designStoragePath>C:\basic1</designStoragePath>
+</designDescr>
+<designDescr class="oracle.dbtools.crest.model.design.Design$DesignStorageDesc" id="3D213F92-FFC7-2597-6864-DAA448CF7B5B">
+<designStoragePath>C:\basic1</designStoragePath>
+</designDescr>
+<designDescr class="oracle.dbtools.crest.model.design.Design$DesignStorageDesc" id="9D0FD0A8-9AC0-59E1-4658-FF44A9CA750D">
+<designStoragePath>C:\basic1</designStoragePath>
+</designDescr>
+<designDescr class="oracle.dbtools.crest.model.design.Design$DesignStorageDesc" id="676EBE97-F5AE-52D0-5C46-8A57F0ACC497">
+<designStoragePath>C:\basic1</designStoragePath>
+</designDescr>
+</usedDesignStorageDescriptors>
 </OSDM_Design>
