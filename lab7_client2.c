@@ -8,6 +8,7 @@
 #include <unistd.h>
 
 void main(int argc, char* argv[]){
+	//????????????
 	int fd, rc;
 	char buf[1024];
 	struct sockaddr_in sa;
