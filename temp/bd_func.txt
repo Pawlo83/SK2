@@ -1,0 +1,11 @@
+Funkcje:
+1. Sumowanie wartości zamówienia
+2. Dodanie zniżek do ostatecznej ceny produktu
+3. Obliczenie zaoszczędzonych pieniędzy przez promocje przez ostatnie 30 dni
+
+Procedury:
+1. Dodawanie promocji ze sprawdzeniem poprawności danych (czy daty takich samych promocji w tym samym sklepie, na ten sam produkt nie nakładają się)
+2. Uzupełnienie elementów zamówienia o składniki dania które wybiera klient
+
+Pytanie:
+1. Relacja zamówienie-sklep
