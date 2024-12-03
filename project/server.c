@@ -17,14 +17,14 @@ int main(int argc, char* argv[]){
   int _read(int sfd, char *buf, int bufsize) {
   	int i, rc = 0;
   	do {
-    	i = read(sfd, buf, bufsize);
-    	if (i==0){
-    		bug=bug+1;
-    	}
-    	if (i < 0) return i;
-    	bufsize -= i;
-    	buf += i;
-    	rc += i;
+  	i = read(sfd, buf, bufsize);
+  	if (i==0){
+  		bug=bug+1;
+  	}
+  	if (i < 0) return i;
+  	bufsize -= i;
+  	buf += i;
+  	rc += i;
   	} while (*(buf-1)!='\n' && bug!=3);
   	return rc;
   }
@@ -44,14 +44,18 @@ int main(int argc, char* argv[]){
     printf("new connection from %s:%d\n", inet_ntoa((struct in_addr)caddr.sin_addr), ntohs(caddr.sin_port));
     cfd2 = accept(sfd, (struct sockaddr*) &caddr, &sl);
     printf("new connection from %s:%d\n", inet_ntoa((struct in_addr)caddr.sin_addr), ntohs(caddr.sin_port));
-	  while(1){
+	while(1){
 	    bufsize = sizeof(buf1);
+
+	    write(cfd1, "dej", 3);
 	    bug=0;
         rc=_read(cfd1,&buf1,bufsize);
         if(bug!=0){
             printf("ERROR c1: bug>=3");
         	break;
         }
+
+        write(cfd2, "dej", 3);
         bug=0;
         rc=_read(cfd2,&buf2,bufsize);
         if(bug!=0){
@@ -60,7 +64,7 @@ int main(int argc, char* argv[]){
         }	    
         write(cfd1, buf2, rc);
         write(cfd2, buf1, rc);
-	  }
+	}
     close(cfd1);
     close(cfd2);
   }
