@@ -24,18 +24,23 @@ try:
             message = byteImage
             #cv2.imshow("Captured Frame", frame)
             #cv2.waitKey(0)
-            bytes_sent=0
-            while(bytes_sent < len(message)):
-                new_message=message[bytes_sent:]
-                bytes_sent += tcp_socket.send(new_message)
-            tcp_socket.send("\n".encode('utf-8'))
+            response = tcp_socket.recv(10)
+            if response==b'dej':
+                bytes_sent=0
+                while(bytes_sent < len(message)):
+                    new_message=message[bytes_sent:]
+                    bytes_sent += tcp_socket.send(new_message)
+                tcp_socket.send("\n".encode('utf-8'))
 
-            response = tcp_socket.recv(100000)
-            nparr = np.frombuffer(response, np.uint8)
-            image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
-            cv2.imshow("Captured Image", image)
+                response = tcp_socket.recv(100000)
+                nparr = np.frombuffer(response, np.uint8)
+                image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
+                cv2.imshow("Captured Image", image)
 
-            cv2.waitKey(int(100/4))
+                cv2.waitKey(int(100/4))
+            else:
+                time.sleep(0.1)
+                print("wait")
 
         # nparr = np.frombuffer(byteImage, np.uint8)
         # image = cv2.imdecode(nparr, cv2.IMREAD_COLOR)
@@ -63,3 +68,8 @@ finally:
     # Zamknięcie połączenia
     tcp_socket.close()
     print("Connection closed")
+
+
+# test ethernet/inny sprzęt
+# outputy w client
+# synchro ????
