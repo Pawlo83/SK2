@@ -34,5 +34,7 @@ int main(int argc, char *argv[]){
 		
 		//write(cfd,buf,rc);
 		sendto(sfd, buf, rc, 0, (struct sockaddr*) &caddr, sl);
+
+		//close(cfd);
 	}
 }
