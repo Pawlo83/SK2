@@ -25,6 +25,15 @@ Serwer wykorzystuje:
 
 Serwer przechowuje klientów w tablicy `clients`, gdzie dla każdego klienta zapisany jest deskryptor gniazda, adres IP oraz status (czy klient jest już w rozmowie). Po odebraniu komendy `connect`, serwer sprawdza, czy docelowy klient jest dostępny i wysyła do niego zapytanie o zgodę. Jeśli klient zaakceptuje, tworzona jest para wątków umożliwiających bezpośrednią komunikację.
 
+Klient wykorzystuje:
+- **Gniazda TCP** do połączenia z serwerem,
+- **Wątki** do jednoczesnej obsługi GUI i płynnego przesyłu danych w obie strony,
+- **Interfejs graficzny** do komunikacji z użytkownikiem, utworzony przy pomocy biblioteki opencv,
+- **Obsługę wideo** przy użyciu biblioteki opencv,
+- **Obsługę audio** przy użyciu biblioteki pyaudio,
+- **Eventy i kolejkę** do obsługi komunikacji między wątkami,
+- **Funkcję `receive`**, do odbioru danych audio i wideo od serwera,
+- **Funkcję `send_video` oraz `send_audio`**, do wysyłania audio i wideo do serwera.
 
 ### Sposób kompilacji i uruchomienia:
 1. **Kompilacja serwera:**
