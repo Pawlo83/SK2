@@ -2,7 +2,7 @@
 ### Temat projektu:
 Projekt polega na implementacji serwera obsługującego komunikację między klientami poprzez protokół TCP. Serwer umożliwia klientom łączenie się, wyświetlanie listy dostępnych użytkowników oraz wywołanie połączeń do bezpośredniej komunikacji.
 
-**Opis protokołu komunikacyjnego:**
+### Opis protokołu komunikacyjnego:
 Protokół komunikacyjny opiera się na przesyłaniu prostych wiadomości tekstowych między klientami a serwerem. Komendy obsługiwane przez serwer to:
 - `refresh` – wysyła listę dostępnych klientów,
 - `connect <IP>` – próba połączenia z podanym klientem,
@@ -15,7 +15,7 @@ Protokół komunikacyjny opiera się na przesyłaniu prostych wiadomości teksto
 Ewentualne części komunikatów i zakończenie przesyłania są oddzielone znakiem nowej lini.
 Serwer zarządza połączeniami i kontroluje dostępność klientów, zapewniając mechanizm blokowania użytkowników podczas aktywnej komunikacji.
 
-**Opis implementacji:**
+### Opis implementacji:
 Serwer wykorzystuje:
 - **Gniazda TCP** do obsługi połączeń,
 - **Wątki Pthreads** do obsługi wielu klientów jednocześnie,
@@ -26,7 +26,7 @@ Serwer wykorzystuje:
 Serwer przechowuje klientów w tablicy `clients`, gdzie dla każdego klienta zapisany jest deskryptor gniazda, adres IP oraz status (czy klient jest już w rozmowie). Po odebraniu komendy `connect`, serwer sprawdza, czy docelowy klient jest dostępny i wysyła do niego zapytanie o zgodę. Jeśli klient zaakceptuje, tworzona jest para wątków umożliwiających bezpośrednią komunikację.
 
 
-**Sposób kompilacji i uruchomienia:**
+### Sposób kompilacji i uruchomienia:
 1. **Kompilacja serwera:**
    ```sh
    gcc -Wall serwer.c -o serwer
