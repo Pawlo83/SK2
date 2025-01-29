@@ -33,20 +33,18 @@ Serwer przechowuje klientów w tablicy `clients`, gdzie dla każdego klienta zap
    ```
 2. **Uruchomienie serwera:**
    ```sh
-   ./server
+   ./serwer
    ```
-   Serwer domyślnie nasłuchuje na porcie `12347`.
+   Serwer domyślnie nasłuchuje na porcie `12345`.
 3. **Konfiguracja klienta (edycja pliku conf.txt, w którym zawiera się IP serwera, port oraz indeksu kamery) np.:**
    ```
    192.168.0.1
    12345
    0
    ```
+4. **Uruchomienie klienta:**
+   ```
+   klient.exe
+   ```
 5. **Obsługa klientów:**
    Klienci mogą łączyć się z serwerem i wysyłać komendy zgodnie z opisanym protokołem. Po zestawieniu połączenia mogą wymieniać wiadomości w czasie rzeczywistym.
-
-**Pliki dodatkowe:**
-- **Plik klienta (`.exe`)** – aplikacja kliencka uruchamiana przez użytkownika,
-- **Plik `conf.txt`** – plik konfiguracyjny zawierający ustawienia IP hosta, portu oraz indeksu kamery.
-
-W razie potrzeby można modyfikować kod, aby dostosować serwer do własnych wymagań.
