@@ -16,6 +16,7 @@ Ewentualne części komunikatów i zakończenie przesyłania są oddzielone znak
 Serwer zarządza połączeniami i kontroluje dostępność klientów, zapewniając mechanizm blokowania użytkowników podczas aktywnej komunikacji.
 
 ### Opis implementacji:
+Serwer przechowuje klientów w tablicy `clients`, gdzie dla każdego klienta zapisany jest deskryptor gniazda, adres IP oraz status (czy klient jest już w rozmowie). Po odebraniu komendy `connect`, serwer sprawdza, czy docelowy klient jest dostępny i wysyła do niego zapytanie o zgodę. Jeśli klient zaakceptuje, tworzona jest para wątków umożliwiających bezpośrednią komunikację.
 Serwer wykorzystuje:
 - **Gniazda TCP** do obsługi połączeń,
 - **Wątki Pthreads** do obsługi wielu klientów jednocześnie,
@@ -23,7 +24,7 @@ Serwer wykorzystuje:
 - **Funkcję `handle_client`**, która obsługuje pojedynczego klienta, odbiera od niego komendy i wykonuje odpowiednie operacje,
 - **Funkcję `handle_connection`**, odpowiadającą za wymianę danych między dwoma połączonymi klientami w rozmowie wideo.
 
-Serwer przechowuje klientów w tablicy `clients`, gdzie dla każdego klienta zapisany jest deskryptor gniazda, adres IP oraz status (czy klient jest już w rozmowie). Po odebraniu komendy `connect`, serwer sprawdza, czy docelowy klient jest dostępny i wysyła do niego zapytanie o zgodę. Jeśli klient zaakceptuje, tworzona jest para wątków umożliwiających bezpośrednią komunikację.
+
 
 Klient wykorzystuje:
 - **Gniazda TCP** do połączenia z serwerem,
