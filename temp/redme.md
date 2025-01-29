@@ -12,7 +12,7 @@ Protokół komunikacyjny opiera się na przesyłaniu prostych wiadomości teksto
 - `stop` – zakończenie rozmowy wideo,
 - `start` – rozpoczęcie rozmowy wideo.
 
-Ewentualne części komunikatów i zakończenie przesyłania są oddzielone znakiem nowej lini.
+Ewentualne części komunikatów i ich zakończenie są oddzielone znakiem nowej lini.
 Serwer zarządza połączeniami i kontroluje dostępność klientów, zapewniając mechanizm blokowania użytkowników podczas aktywnej komunikacji.
 
 ### Opis implementacji:
