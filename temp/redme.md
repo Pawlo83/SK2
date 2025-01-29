@@ -17,6 +17,7 @@ Serwer zarządza połączeniami i kontroluje dostępność klientów, zapewniaj�
 
 ### Opis implementacji:
 Serwer przechowuje klientów w tablicy `clients`, gdzie dla każdego klienta zapisany jest deskryptor gniazda, adres IP oraz status (czy klient jest już w rozmowie). Po odebraniu komendy `connect`, serwer sprawdza, czy docelowy klient jest dostępny i wysyła do niego zapytanie o zgodę. Jeśli klient zaakceptuje, tworzona jest para wątków umożliwiających bezpośrednią komunikację.
+
 Serwer wykorzystuje:
 - **Gniazda TCP** do obsługi połączeń,
 - **Wątki Pthreads** do obsługi wielu klientów jednocześnie,
