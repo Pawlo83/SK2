@@ -7,7 +7,7 @@ Protokół komunikacyjny opiera się na przesyłaniu prostych wiadomości teksto
 - `connect <IP>` – próba połączenia z podanym klientem,
 - `ask` – wiadomość wysyłana do użytkownika z zapytaniem o zgodę na połączenie,
 - `ask yes` – akceptacja połączenia przez drugiego klienta,
-- `ask rejected` – odmowa połączenia,
+- `ask rejected` – odmowa połączenia, 
 - `stop` – zakończenie komunikacji.
 
 Serwer zarządza połączeniami i kontroluje dostępność klientów, zapewniając mechanizm blokowania użytkowników podczas aktywnej komunikacji.
