@@ -1,5 +1,5 @@
-#Komunikator sieciowy typu skype
-**Temat projektu:**
+# Komunikator sieciowy typu skype
+### Temat projektu:
 Projekt polega na implementacji serwera obsługującego komunikację między klientami poprzez protokół TCP. Serwer umożliwia klientom łączenie się, wyświetlanie listy dostępnych użytkowników oraz wywołanie połączeń do bezpośredniej komunikacji.
 
 **Opis protokołu komunikacyjnego:**
